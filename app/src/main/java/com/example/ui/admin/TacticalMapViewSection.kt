@@ -1,9 +1,5 @@
 package com.example.ui.admin
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -50,8 +46,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -76,7 +73,7 @@ fun TacticalMapViewSection(
     currentLanguage: AppLanguage = AppLanguage.ENGLISH,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
     var focusedSignal by remember { mutableStateOf<DistressSignal?>(signals.firstOrNull()) }
 
     // Geographic bounding box for the disaster operations zone
@@ -274,10 +271,9 @@ fun TacticalMapViewSection(
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         OutlinedButton(
                             onClick = {
-                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                val clip = ClipData.newPlainText("Target Coordinates", "${sig.latitude}, ${sig.longitude} (Plus Code: ${sig.plusCode})")
-                                clipboard.setPrimaryClip(clip)
-                                Toast.makeText(context, "Coordinates copied for SAR dispatch", Toast.LENGTH_SHORT).show()
+                                clipboardManager.setText(
+                                    AnnotatedString("${sig.latitude}, ${sig.longitude} (Plus Code: ${sig.plusCode})")
+                                )
                             },
                             shape = RoundedCornerShape(10.dp),
                             modifier = Modifier.size(36.dp),

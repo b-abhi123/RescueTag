@@ -1,8 +1,5 @@
 package com.example.ui.components
 
-import android.content.Intent
-import android.net.Uri
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -44,7 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -62,7 +59,7 @@ fun SearchModeCard(
     state: AppState,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
     val scope = rememberCoroutineScope()
 
     var isPinging by remember { mutableStateOf(false) }
@@ -311,14 +308,9 @@ fun SearchModeCard(
                             ) {
                                 Button(
                                     onClick = {
-                                        val intent = Intent(Intent.ACTION_DIAL).apply {
-                                            data = Uri.parse("tel:${profile.phoneNumber}")
-                                        }
                                         try {
-                                            context.startActivity(intent)
-                                        } catch (e: Exception) {
-                                            Toast.makeText(context, "Dialing ${profile.phoneNumber}", Toast.LENGTH_SHORT).show()
-                                        }
+                                            uriHandler.openUri("tel:${profile.phoneNumber}")
+                                        } catch (_: Exception) {}
                                     },
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = MaterialTheme.colorScheme.surface,
@@ -335,14 +327,9 @@ fun SearchModeCard(
                                 if (profile.secondaryEmergencyPhone.isNotBlank()) {
                                     OutlinedButton(
                                         onClick = {
-                                            val intent = Intent(Intent.ACTION_DIAL).apply {
-                                                data = Uri.parse("tel:${profile.secondaryEmergencyPhone}")
-                                            }
                                             try {
-                                                context.startActivity(intent)
-                                            } catch (e: Exception) {
-                                                Toast.makeText(context, "Dialing ${profile.secondaryEmergencyPhone}", Toast.LENGTH_SHORT).show()
-                                            }
+                                                uriHandler.openUri("tel:${profile.secondaryEmergencyPhone}")
+                                            } catch (_: Exception) {}
                                         },
                                         shape = RoundedCornerShape(12.dp),
                                         modifier = Modifier.weight(1f)

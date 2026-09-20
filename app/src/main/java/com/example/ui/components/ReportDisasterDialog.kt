@@ -1,11 +1,5 @@
 package com.example.ui.components
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -46,8 +40,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -65,7 +61,8 @@ fun ReportDisasterDialog(
     currentLanguage: AppLanguage = AppLanguage.ENGLISH,
     onDismiss: () -> Unit
 ) {
-    val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
+    val uriHandler = LocalUriHandler.current
     val disasterOptions = listOf(
         Strings.get("disaster_flash_flood", currentLanguage),
         Strings.get("disaster_landslide", currentLanguage),
@@ -238,10 +235,9 @@ fun ReportDisasterDialog(
                                 modifier = Modifier
                                     .size(16.dp)
                                     .clickable {
-                                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                        val clip = ClipData.newPlainText("Coordinates", "$currentLatitude, $currentLongitude (Plus Code: $currentPlusCode)")
-                                        clipboard.setPrimaryClip(clip)
-                                        Toast.makeText(context, "Coordinates copied to clipboard", Toast.LENGTH_SHORT).show()
+                                        clipboardManager.setText(
+                                            AnnotatedString("$currentLatitude, $currentLongitude (Plus Code: $currentPlusCode)")
+                                        )
                                     }
                             )
                         }
@@ -293,14 +289,9 @@ fun ReportDisasterDialog(
                 // Call emergency helpline button
                 Button(
                     onClick = {
-                        val intent = Intent(Intent.ACTION_DIAL).apply {
-                            data = Uri.parse("tel:112")
-                        }
                         try {
-                            context.startActivity(intent)
-                        } catch (e: Exception) {
-                            Toast.makeText(context, "Dialing 112 Emergency Dispatch", Toast.LENGTH_SHORT).show()
-                        }
+                            uriHandler.openUri("tel:112")
+                        } catch (_: Exception) {}
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = SosEmergencyRed,
@@ -331,13 +322,9 @@ fun ReportDisasterDialog(
 
                 OutlinedButton(
                     onClick = {
-                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                        val clip = ClipData.newPlainText(
-                            "Disaster Report",
-                            "EMERGENCY REPORT: $selectedDisasterType at $currentLatitude, $currentLongitude (Plus Code: $currentPlusCode, Elev: $currentElevation)"
+                        clipboardManager.setText(
+                            AnnotatedString("EMERGENCY REPORT: $selectedDisasterType at $currentLatitude, $currentLongitude (Plus Code: $currentPlusCode, Elev: $currentElevation)")
                         )
-                        clipboard.setPrimaryClip(clip)
-                        Toast.makeText(context, "Report text copied for SMS/Radio", Toast.LENGTH_SHORT).show()
                     },
                     shape = RoundedCornerShape(14.dp),
                     modifier = Modifier.fillMaxWidth()

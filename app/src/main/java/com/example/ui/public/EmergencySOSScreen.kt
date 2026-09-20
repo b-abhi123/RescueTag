@@ -1,7 +1,5 @@
 package com.example.ui.public
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -40,7 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -65,7 +63,7 @@ fun EmergencySOSScreen(
     onSimulateCluster: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
     val scrollState = rememberScrollState()
 
     val mySector = state.sectors.find { sec ->
@@ -291,8 +289,9 @@ fun EmergencySOSScreen(
                 // One-tap emergency dialer
                 ElevatedButton(
                     onClick = {
-                        val dialIntent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:112"))
-                        context.startActivity(dialIntent)
+                        try {
+                            uriHandler.openUri("tel:112")
+                        } catch (_: Exception) {}
                     },
                     modifier = Modifier
                         .fillMaxWidth()

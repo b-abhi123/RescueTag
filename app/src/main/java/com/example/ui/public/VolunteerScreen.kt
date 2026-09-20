@@ -1,8 +1,5 @@
 package com.example.ui.public
 
-import android.content.Intent
-import android.net.Uri
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -52,7 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -84,7 +81,7 @@ fun VolunteerScreen(
     onResolveSignal: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
     var checkedHouseholds by remember { mutableStateOf(setOf<String>()) }
     var showVolunteerDialog by remember { mutableStateOf(false) }
 
@@ -372,8 +369,7 @@ fun VolunteerScreen(
                             profile?.phoneNumber?.let { phone ->
                                 OutlinedButton(
                                     onClick = {
-                                        val intent = Intent(Intent.ACTION_DIAL).apply { data = Uri.parse("tel:$phone") }
-                                        try { context.startActivity(intent) } catch (_: Exception) {}
+                                        try { uriHandler.openUri("tel:$phone") } catch (_: Exception) {}
                                     },
                                     shape = RoundedCornerShape(10.dp),
                                     modifier = Modifier.weight(1f)
@@ -393,7 +389,6 @@ fun VolunteerScreen(
                             Button(
                                 onClick = {
                                     checkedHouseholds = checkedHouseholds + signal.id
-                                    Toast.makeText(context, "Household marked as checked & safe", Toast.LENGTH_SHORT).show()
                                 },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = SosNeonGreen,
@@ -463,8 +458,7 @@ fun VolunteerScreen(
 
                     OutlinedButton(
                         onClick = {
-                            val intent = Intent(Intent.ACTION_DIAL).apply { data = Uri.parse("tel:${volunteer.phone}") }
-                            try { context.startActivity(intent) } catch (_: Exception) {}
+                            try { uriHandler.openUri("tel:${volunteer.phone}") } catch (_: Exception) {}
                         },
                         shape = RoundedCornerShape(10.dp)
                     ) {
@@ -494,11 +488,6 @@ fun VolunteerScreen(
             onSubmit = { newVol ->
                 volunteerRoster.add(0, newVol)
                 showVolunteerDialog = false
-                Toast.makeText(
-                    context,
-                    Strings.get("volunteer_registered_success", currentLanguage),
-                    Toast.LENGTH_LONG
-                ).show()
             }
         )
     }
