@@ -1,0 +1,8 @@
+{
+  "name": "Remix RescueTag",
+  "description": "Seasonal LoRaWAN emergency distress communication \u0026 incident command system with tactile tag simulation and multi-signal triage escalation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
